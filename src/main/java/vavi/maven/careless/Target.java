@@ -8,6 +8,8 @@ package vavi.maven.careless;
 
 import java.util.StringJoiner;
 
+import org.apache.maven.plugins.annotations.Parameter;
+
 
 /**
  * Target.
@@ -18,7 +20,7 @@ import java.util.StringJoiner;
 public class Target {
 
     /** target path */
-    String path;
+    private String path;
 
     /**
      * resource indicator.
@@ -30,21 +32,56 @@ public class Target {
      *  <li>.txt -> regexed line and location</li>
      *  </ol>
      */
-    String ri;
+    private String ri;
 
-    String value;
+    private String value;
 
-    boolean negative;
+    private boolean negative;
+
+    /**
+     * resource indicator
+     */
+    @Parameter(property = "path", required = true)
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    @Parameter(property = "ri", required = true)
+    public String getRI() {
+        return ri;
+    }
+
+    public void setRI(String ri) {
+        this.ri = ri;
+    }
+
+    @Parameter(property = "value", required = true)
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Parameter(property = "negative")
+    public boolean isNegative() {
+        return negative;
+    }
 
     public Target path(String path) {
         this.path = path;
         return this;
     }
 
-    /**
-     * resource indicator
-     *
-     */
+    public void setNegative(boolean negative) {
+        this.negative = negative;
+    }
+
     public Target ri(String ri) {
         this.ri = ri;
         return this;
@@ -61,7 +98,7 @@ public class Target {
     }
 
     @Override public String toString() {
-        return new StringJoiner(", ", Target.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ",  "target: { ", " }")
                 .add("path='" + path + "'")
                 .add("ri='" + ri + "'")
                 .add("value='" + value + "'")

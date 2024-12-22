@@ -6,7 +6,11 @@
 
 package vavi.maven.careless;
 
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
@@ -17,21 +21,31 @@ import org.apache.maven.plugins.annotations.Parameter;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2024-09-07 nsano initial version <br>
  */
-@Mojo(name = "careless")
+@Mojo(name = "careless", defaultPhase = LifecyclePhase.VALIDATE)
 public class CarelessMojo implements org.apache.maven.plugin.Mojo {
 
     private Log log;
 
+    @Parameter(required = true)
+    private List<Target> targets;
 
-    @Parameter(property = "constantName", required = true)
-    private String constantName;
-
-    @Parameter(property = "expectedValue", required = true)
-    private String expectedValue;
+    /** checker */
+    private final Processor processor = new Processor();
 
     @Override
-    public void execute() {
-        log.info("Hello, world");
+    public void execute() throws MojoExecutionException {
+        for (Target target : targets) {
+            try {
+                String result = processor.process(target);
+                if (result.startsWith("OK")) {
+                    log.info(result);
+                } else {
+                    log.error(result);
+                }
+            } catch (IllegalStateException e) {
+                throw new MojoExecutionException(e.getCause());
+            }
+        }
     }
 
     @Override

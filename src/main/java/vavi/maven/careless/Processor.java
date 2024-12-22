@@ -8,7 +8,6 @@ package vavi.maven.careless;
 
 import java.io.InputStream;
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -50,60 +49,65 @@ public class Processor {
         return ok ? "matched" : "not matched";
     }
 
-    public void process(Target target) {
-        String ext = target.path.substring(target.path.lastIndexOf('.') + 1);
+    /**
+     * TODO spi
+     *
+     * @throws IllegalStateException when an error occurs
+     */
+    public String process(Target target) {
+        String ext = target.getPath().substring(target.getPath().lastIndexOf('.') + 1);
 //logger.log(Level.DEBUG, "ext: " + ext);
         switch (ext) {
             case "pom", "xml" -> {
                 try {
-                    InputSource is = new InputSource(Files.newInputStream(Path.of(target.path)));
-                    String actual = (String) xPath.evaluate(target.ri, is, XPathConstants.STRING);
-                    boolean m = actual.matches(target.value);
+                    InputSource is = new InputSource(Files.newInputStream(Path.of(target.getPath())));
+                    String actual = (String) xPath.evaluate(target.getRI(), is, XPathConstants.STRING);
+                    boolean m = actual.matches(target.getValue());
 //logger.log(Level.DEBUG, ext + ": " + target.value + ", actual: " + actual + ", matches: " + m);
-                    if (target.negative == m)
-                        System.out.println("NG: " + ext + ": " + m(m) + ": required: " + target.value + ", actual: " + actual);
+                    if (target.isNegative() == m)
+                        return "NG: " + ext + ": " + m(m) + ": for " + target + ", actual: " + actual;
                     else
-                        System.err.println("OK: " + ext + ": " + m(m) + ": for " + target);
+                        return "OK: " + ext + ": " + m(m) + ": for " + target;
                 } catch (Exception e) {
-                    logger.log(Level.ERROR, e.getMessage() + ":" + target, e);
+                    throw new IllegalStateException(e);
                 }
             }
             case "yml" -> {
                 try {
-                    InputStream is = Files.newInputStream(Path.of(target.path));
-                    String actual = YamlPath.from(is).readSingle(target.ri);
-                    boolean m = actual != null && actual.matches(target.value);
-                    if (target.negative == m)
-                        System.out.println("NG: " + ext + ": " + m(m) + ": required: " + target.value + ", actual: " + actual);
+                    InputStream is = Files.newInputStream(Path.of(target.getPath()));
+                    String actual = YamlPath.from(is).readSingle(target.getRI());
+                    boolean m = actual != null && actual.matches(target.getValue());
+                    if (target.isNegative() == m)
+                        return "NG: " + ext + ": " + m(m) + ": for " + target + ", actual: " + actual;
                     else
-                        System.err.println("OK: " + ext + ": " + m(m) + ": for " + target);
+                        return "OK: " + ext + ": " + m(m) + ": for " + target;
                 } catch (Exception e) {
-                    logger.log(Level.ERROR, e.getMessage() + ":" + target, e);
+                    throw new IllegalStateException(e);
                 }
             }
             default -> {
                 try {
-                    Pattern p = Pattern.compile(target.ri);
+                    Pattern p = Pattern.compile(target.getRI());
                     List<Integer> r = new ArrayList<>();
                     AtomicInteger l = new AtomicInteger();
-                    Files.readAllLines(Path.of(target.path)).forEach(line -> {
+                    Files.readAllLines(Path.of(target.getPath())).forEach(line -> {
                         Matcher m = p.matcher(line);
 //logger.log(Level.DEBUG, ext + ": find: " + p + ": " + m.find() + ": " + line);
                         if (m.find()) {
                             String actual = m.group(1);
-                            if (target.value.matches(actual))
+                            if (target.getValue().matches(actual))
                                 r.add(l.get());
                         }
                         l.incrementAndGet();
                     });
                     boolean m = !r.isEmpty();
 //logger.log(Level.DEBUG, ext + ": " + target.value + ", matches: " + m);
-                    if (!target.negative == m)
-                        System.err.println("OK: " + ext + ": " + m(m) + ": for " + target + ", lines: " + r);
+                    if (!target.isNegative() == m)
+                        return "OK: " + ext + ": " + m(m) + ": for " + target + ", lines: " + r;
                     else
-                        System.out.println("NG: " + ext + ": " + m(m) + ": for " + target + ", lines: " + r);
+                        return "NG: " + ext + ": " + m(m) + ": for " + target;
                 } catch (Exception e) {
-                    logger.log(Level.ERROR, e.getMessage() + ":" + target, e);
+                    throw new IllegalStateException(e);
                 }
             }
         }
