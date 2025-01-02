@@ -10,7 +10,7 @@
 ### 🐣️ this project is a good exsample of
 
  * maven plugin
- * maven plugin junit5 test
+ * ~~maven plugin junit5 test~~ wip
 
 ## Install
 
@@ -68,11 +68,7 @@ $ mvn -f src/test/resources/test-pom.xml validate                               
 [INFO] 
 [INFO] --- careless:0.0.1-SNAPSHOT:careless (default) @ sample ---
 [INFO] OK: yml: matched: for target: { path='.github/workflows/codeql.yml', ri='jobs.analyze.steps[2].name', value='Set up JDK 17' }
-[INFO] OK: yml: matched: for target: { path='.github/workflows/codeql.yml', ri='jobs.analyze.steps[2].with.java-version', value='17' }
-[INFO] OK: yml: matched: for target: { path='.github/workflows/maven.yml', ri='jobs.build.steps[2].name', value='Set up JDK 17' }
-[INFO] OK: yml: matched: for target: { path='.github/workflows/maven.yml', ri='jobs.build.steps[2].with.java-version', value='17' }
 [INFO] OK: xml: matched: for target: { path='pom.xml', ri='//*[local-name()='artifactId' and text()='maven-compiler-plugin']/..//*[local-name()='release' or local-name()='source']/text()', value='17' }
-[INFO] OK: yml: matched: for target: { path='jitpack.yml', ri='jdk[0]', value='openjdk17' }
 [INFO] OK: md: matched: for target: { path='README.md', ri='img\.shields\.io\/badge\/Java-(\d+?)-b07219', value='17' }, lines: [3]
 [ERROR] NG: xml: matched: for target: { path='pom.xml', ri='//*[local-name()='project']/*[local-name()='version']/text()', value='.*-SNAPSHOT' }, actual: 0.0.1-SNAPSHOT
 ```
@@ -87,4 +83,5 @@ $ mvn -f src/test/resources/test-pom.xml validate                               
 
 ## TODO
 
- * checkstyle
+ * checkstyle <- ???
+ * unit/integrated test
